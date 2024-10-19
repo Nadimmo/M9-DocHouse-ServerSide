@@ -54,7 +54,14 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/doctors/:if', async(req,res)=>{
+    app.get('/doctors/:id', async(req,res)=>{
+      const DoctorId = req.params.id
+      const query = {_id: new ObjectId(DoctorId)}
+      const result = await CollectionOfDoctors.findOne(query)
+      res.send(result)
+    })
+
+    app.delete('/doctors/:id', async(req,res)=>{
       const DoctorId = req.params.id
       const query = {_id: new ObjectId(DoctorId)}
       const result = await CollectionOfDoctors.deleteOne(query)
