@@ -54,6 +54,13 @@ async function run() {
       res.send(result)
     })
 
+    app.delete('/doctors/:if', async(req,res)=>{
+      const DoctorId = req.params.id
+      const query = {_id: new ObjectId(DoctorId)}
+      const result = await CollectionOfDoctors.deleteOne(query)
+      res.send(result)
+    })
+
     // review api
     app.get('/reviews', async(req,res)=>{
       const review = req.body
