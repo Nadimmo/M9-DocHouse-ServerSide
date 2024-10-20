@@ -35,6 +35,8 @@ const client = new MongoClient(uri, {
 async function run() {
   const CollectionOfDoctors = client.db("DoctorsHouseDB").collection("DoctorsDB")
   const CollectionOfReviews = client.db("DoctorsHouseDB").collection("ReviewDB")
+  const CollectionOfAppointment = client.db("DoctorsHouseDB").collection("AppointmentDB")
+  const CollectionOfNewAppointment = client.db("DoctorsHouseDB").collection("NewAppointmentDB")
 
 
   try {
@@ -58,7 +60,7 @@ async function run() {
       const DoctorId = req.params.id
       const query = {_id: new ObjectId(DoctorId)}
       const result = await CollectionOfDoctors.findOne(query)
-      res.send(result)
+      res.send(result) 
     })
 
     app.delete('/doctors/:id', async(req,res)=>{
@@ -78,6 +80,37 @@ async function run() {
     app.post('/reviews', async(req,res)=>{
       const review = req.body
       const result = await CollectionOfReviews.insertOne(review)
+      res.send(result)
+    })
+
+    // appointment api
+    app.get('/appointments', async(req,res)=>{
+      const appointment = req.body
+      const result = await CollectionOfAppointment.find(appointment).toArray()
+      res.send(result)
+    })
+    app.get('/appointments/:id', async(req,res)=>{
+      const appId = req.params.id
+      const filter = {_id: new ObjectId(appId)}
+      const result = await CollectionOfAppointment.findOne(filter)
+      res.send(result)
+    })
+
+    // new appointment api
+    app.post('/Newappointments', async(req,res)=>{
+      const appointment = req.body
+      const result = await CollectionOfNewAppointment.insertOne(appointment)
+    })
+
+    app.get('/Newappointments', async(req,res)=>{
+      const appointment = req.body
+      const result = await CollectionOfNewAppointment.find(appointment).toArray()
+      res.send(result)
+    })
+    app.get('/Newappointments/:id', async(req,res)=>{
+      const appId = req.params.id
+      const filter = {_id: new ObjectId(appId)}
+      const result = await CollectionOfNewAppointment.findOne(filter)
       res.send(result)
     })
 
