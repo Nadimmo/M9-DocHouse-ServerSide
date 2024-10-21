@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const jwt = require('jsonwebtoken')
 const cors = require('cors')
 const dotenv = require('dotenv')
 dotenv.config()
@@ -37,6 +38,7 @@ async function run() {
   const CollectionOfReviews = client.db("DoctorsHouseDB").collection("ReviewDB")
   const CollectionOfAppointment = client.db("DoctorsHouseDB").collection("AppointmentDB")
   const CollectionOfNewAppointment = client.db("DoctorsHouseDB").collection("NewAppointmentDB")
+  const CollectionOfUsers = client.db("DoctorsHouseDB").collection("UsersDB")
 
 
   try {
@@ -111,6 +113,25 @@ async function run() {
       const appId = req.params.id
       const filter = {_id: new ObjectId(appId)}
       const result = await CollectionOfNewAppointment.findOne(filter)
+      res.send(result)
+    })
+
+    // user api
+    app.post('/users', async(req,res)=>{
+      const user = req.body
+      const query = {email: user.email}
+      const exiting = await CollectionOfUsers.findOne(query)
+      if(exiting){
+        return res.send({message: 'User Already Exit'})
+      }
+      const result = await CollectionOfUsers.insertOne(user)
+      res.send(result)
+    })
+
+
+    app.get('/users', async(req,res)=>{
+      const user = req.body
+      const result = await CollectionOfUsers.find(user).toArray()
       res.send(result)
     })
 
