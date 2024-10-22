@@ -15,5 +15,9 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.9.0"
+  },
+  "resolutions": {
+    "d2/left-pad": "1.1.1",
+    "c/**/left-pad": "^1.1.2"
   }
 }
