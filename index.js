@@ -179,6 +179,13 @@ async function run() {
       res.send(result);
     });
 
+    app.delete('/users/:id', verifyToken, verifyAdmin, async(req,res)=>{
+      const useId = req.params.id
+      const filter = {_id: new ObjectId(useId)}
+      const result = CollectionOfUsers.deleteOne(filter)
+      res.send(result)
+    })
+
     // make admin api
     app.patch("/user/admin/:id", verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
