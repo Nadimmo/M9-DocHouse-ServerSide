@@ -67,9 +67,9 @@ async function run() {
     // use verify admin after verifyToken
     const verifyAdmin = async (req, res, next) => {
       const email = req.decode.email
-      const query = { email: email };
-      const user = await CollectionOfUsers.findOne(query);
-      const isAdmin = user?.role === "admin";
+      const query = { email: email }
+      const user = await CollectionOfUsers.findOne(query)
+      const isAdmin = user?.role === "admin"
       if (!isAdmin) {
         return res.status(403).send({ message: "forbidden access" });
       }
@@ -92,7 +92,7 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/doctors", async (req, res) => {
+    app.post("/doctors", verifyToken, verifyAdmin, async (req, res) => {
       const doctor = req.body;
       const result = await CollectionOfDoctors.insertOne(doctor);
       res.send(result);
@@ -128,7 +128,7 @@ async function run() {
     // appointment api
     app.get("/appointments", async (req, res) => {
       const appointment = req.body;
-      const result = await CollectionOfAppointment.find(appointment).toArray();
+      const result = await CollectionOfAppointment.find(appointment).toArray()
       res.send(result);
     });
     app.get("/appointments/:id", async (req, res) => {
@@ -144,13 +144,16 @@ async function run() {
       const result = await CollectionOfNewAppointment.insertOne(appointment);
     });
 
-    app.get("/Newappointments/:email", verifyToken, async (req, res) => {
-      const appointment = req.body.email;
-      const result = await CollectionOfNewAppointment.findOne(
-        appointment
-      ).toArray();
-      res.send(result);
+    app.get("/Newappointments", verifyToken,  async (req, res) => {
+      let query = {}
+      if(req.query?.email){
+        query = {email: req.query.email}
+      }
+      const result = await CollectionOfNewAppointment.find(query).toArray()
+      res.send(result)
+     
     });
+    
     app.get("/Newappointments/:id", async (req, res) => {
       const appId = req.params.id;
       const filter = { _id: new ObjectId(appId) };
