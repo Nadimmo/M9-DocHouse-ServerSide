@@ -43,6 +43,7 @@ async function run() {
     .db("DoctorsHouseDB")
     .collection("NewAppointmentDB");
   const CollectionOfUsers = client.db("DoctorsHouseDB").collection("UsersDB");
+  const CollectionOfRequestUsers = client.db("DoctorsHouseDB").collection("RequestUsersDB");
 
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -85,7 +86,7 @@ async function run() {
       res.send({ token });
     });
 
-    // doctors api
+    // doctors related api
     app.get("/doctors", async (req, res) => {
       const doctor = req.body;
       const result = await CollectionOfDoctors.find(doctor).toArray();
@@ -112,7 +113,7 @@ async function run() {
       res.send(result);
     });
 
-    // review api
+    // review related api
     app.get("/reviews", async (req, res) => {
       const review = req.body;
       const result = await CollectionOfReviews.find(review).toArray();
@@ -125,7 +126,7 @@ async function run() {
       res.send(result);
     });
 
-    // appointment api
+    // appointment first related api show in ui or appointment page
     app.get("/appointments", async (req, res) => {
       const appointment = req.body;
       const result = await CollectionOfAppointment.find(appointment).toArray()
@@ -138,7 +139,7 @@ async function run() {
       res.send(result);
     });
 
-    // new appointment api
+    // new appointment related api
     app.post("/Newappointments", async (req, res) => {
       const appointment = req.body;
       const result = await CollectionOfNewAppointment.insertOne(appointment);
@@ -161,7 +162,22 @@ async function run() {
       res.send(result);
     });
 
-    // user api
+
+    // user send message or request api
+    app.post("/userRequest", async(req,res)=>{
+      const user = req.body
+      const result = await CollectionOfRequestUsers.insertOne(user)
+      res.send(result)
+    })
+
+    // show user in request page or ui
+    app.get('/userRequest', async(req,res)=>{
+      const user = req.body
+      const result = await CollectionOfRequestUsers.find(user).toArray()
+      res.send(result)
+    })
+
+    // user send in database realted api
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
@@ -173,12 +189,14 @@ async function run() {
       res.send(result);
     });
 
+    // show user in ui or all user page
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       const user = req.body;
       const result = await CollectionOfUsers.find(user).toArray();
       res.send(result);
     });
 
+    // delete user in database 
     app.delete('/users/:id', verifyToken, verifyAdmin, async(req,res)=>{
       const useId = req.params.id
       const filter = {_id: new ObjectId(useId)}
@@ -186,7 +204,7 @@ async function run() {
       res.send(result)
     })
 
-    // make admin api
+    // make admin related api
     app.patch("/user/admin/:id", verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -199,6 +217,7 @@ async function run() {
       res.send(result);
     });
 
+    // checked user make admin or none admin
     app.get("/user/admin/:email", verifyToken, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       if (email !== req.decode.email) {
