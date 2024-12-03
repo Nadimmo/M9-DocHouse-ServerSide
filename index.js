@@ -146,7 +146,7 @@ async function run() {
       res.send(result)
     });
 
-    app.get("/Newappointments",   async (req, res) => {
+    app.get("/Newappointments", verifyToken,  async (req, res) => {
       const user = req.query.email;
       const query = { email: user };
       const result = await CollectionOfNewAppointment.find(query).toArray()
