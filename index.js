@@ -57,17 +57,17 @@ async function run() {
       }
       const token = req.headers.authorization.split(" ")[1];
       // console.log(token);
-      jwt.verify(token, process.env.ACCESS_TOKEN, (err, decode) => {
+      jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
         if (err) {
           res.status(401).send({ message: "unauthorized access" });
         }
-        req.decode = decode;
+        req.decoded = decoded;
         next();
       });
     };
     // use verify admin after verifyToken
     const verifyAdmin = async (req, res, next) => {
-      const email = req.decode.email
+      const email = req.decoded.email
       const query = { email: email }
       const user = await CollectionOfUsers.findOne(query)
       const isAdmin = user?.role === "admin"
@@ -143,19 +143,18 @@ async function run() {
     app.post("/Newappointments", async (req, res) => {
       const appointment = req.body;
       const result = await CollectionOfNewAppointment.insertOne(appointment);
+      res.send(result)
     });
 
-    app.get("/Newappointments", verifyToken,  async (req, res) => {
-      let query = {}
-      if(req.query?.email){
-        query = {email: req.query.email}
-      }
+    app.get("/Newappointments",   async (req, res) => {
+      const user = req.query.email;
+      const query = { email: user };
       const result = await CollectionOfNewAppointment.find(query).toArray()
       res.send(result)
      
     });
     
-    app.get("/Newappointments/:id", async (req, res) => {
+    app.get("/Newappointments/:id", verifyToken, async (req, res) => {
       const appId = req.params.id;
       const filter = { _id: new ObjectId(appId) };
       const result = await CollectionOfNewAppointment.findOne(filter);
@@ -171,7 +170,7 @@ async function run() {
     })
 
     // show user in request page or ui
-    app.get('/userRequest', async(req,res)=>{
+    app.get('/userRequest', verifyToken,verifyAdmin, async(req,res)=>{
       const user = req.body
       const result = await CollectionOfRequestUsers.find(user).toArray()
       res.send(result)
@@ -218,9 +217,9 @@ async function run() {
     });
 
     // checked user make admin or none admin
-    app.get("/user/admin/:email", verifyToken, verifyAdmin, async (req, res) => {
+    app.get("/user/admin/:email", verifyToken,  async (req, res) => {
       const email = req.params.email;
-      if (email !== req.decode.email) {
+      if (email !== req.decoded.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
       const filter = { email: email };
