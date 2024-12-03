@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://doctorhouse-259ce.web.app"],
+    origin: ["http://localhost:5173","https://doctorhouse-259ce.web.app", "https://doctorhouse-259ce.firebaseapp.com"],
   })
 );
 
@@ -170,7 +170,7 @@ async function run() {
     })
 
     // show user in request page or ui
-    app.get('/userRequest', verifyToken,verifyAdmin, async(req,res)=>{
+    app.get('/userRequest', verifyToken, async(req,res)=>{
       const user = req.body
       const result = await CollectionOfRequestUsers.find(user).toArray()
       res.send(result)
@@ -189,7 +189,7 @@ async function run() {
     });
 
     // show user in ui or all user page
-    app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
+    app.get("/users", verifyToken,  async (req, res) => {
       const user = req.body;
       const result = await CollectionOfUsers.find(user).toArray();
       res.send(result);
