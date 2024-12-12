@@ -256,8 +256,13 @@ async function run() {
       const payment = req.body;
       const paymentResult = await CollectionOfPayments.insertOne(payment);
       // console.log("payment info", paymentResult);
-
-      res.send(paymentResult);
+      const query = {
+        _id:{
+          $in: payment.newAppointmentIds.map((id)=> new ObjectId(id))
+        }
+      }
+      const result = await CollectionOfNewAppointment.deleteMany(query)
+      res.send({paymentResult, result});
     });
 
     app.get("/payments", async (req, res) => {
