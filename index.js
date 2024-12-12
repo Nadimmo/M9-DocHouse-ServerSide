@@ -1,13 +1,14 @@
 const express = require("express");
 const app = express();
 const jwt = require("jsonwebtoken");
+const strip = require('stripe')('sk_test_51PZmx2Ro2enkpQYdV1PdzTYYwEUam2XGqbWAnEE7CMUqysztVSfp9NBAoOfzNY5yEx1M04oMWAV5Q0THnhvi1M6500w8osQPgZ')
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 5000;
 
 // Middleware to parse JSON request bodies
-
+app.use(express.static("public"));
 app.use(express.json());
 app.use(
   cors({
@@ -139,7 +140,7 @@ async function run() {
       res.send(result);
     });
 
-    // new appointment related api
+    // new appointment or booking appointment related api
     app.post("/Newappointments", async (req, res) => {
       const appointment = req.body;
       const result = await CollectionOfNewAppointment.insertOne(appointment);
@@ -230,6 +231,24 @@ async function run() {
       }
       res.send({ admin });
     });
+
+
+    //create payment-intent
+    app.post('/create-payment-intent', async(req,res)=>{
+      const {price} = req.body;
+      const amount = parseInt(price * 100);
+
+      const paymentIntent = await strip.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: [
+          "card"
+        ]
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
