@@ -45,6 +45,7 @@ async function run() {
     .collection("NewAppointmentDB");
   const CollectionOfUsers = client.db("DoctorsHouseDB").collection("UsersDB");
   const CollectionOfRequestUsers = client.db("DoctorsHouseDB").collection("RequestUsersDB");
+  const CollectionOfPayments= client.db("DoctorsHouseDB").collection("PaymentsDB");
 
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -249,6 +250,20 @@ async function run() {
         clientSecret: paymentIntent.client_secret
       })
     })
+
+    // .........payment related api...........
+    app.post("/payments", async (req, res) => {
+      const payment = req.body;
+      const paymentResult = await CollectionOfPayments.insertOne(payment);
+      // console.log("payment info", paymentResult);
+
+      res.send(paymentResult);
+    });
+
+    app.get("/payments", async (req, res) => {
+      const result = await CollectionOfPayments.find().toArray();
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
