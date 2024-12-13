@@ -252,7 +252,7 @@ async function run() {
     })
 
     // .........payment related api...........
-    app.post("/payments", async (req, res) => {
+    app.post("/payments",verifyToken, async (req, res) => {
       const payment = req.body;
       const paymentResult = await CollectionOfPayments.insertOne(payment);
       // console.log("payment info", paymentResult);
@@ -265,10 +265,19 @@ async function run() {
       res.send({paymentResult, result});
     });
 
-    app.get("/payments", async (req, res) => {
-      const result = await CollectionOfPayments.find().toArray();
-      res.send(result);
-    });
+    // app.get("/payments", async (req, res) => {
+    //   const payments = req.body;
+    //   const result = await CollectionOfPayments.find(payments).toArray();
+    //   res.send(result);
+    // });
+
+    //when this user add appointment and payment only this user can see only your payment history
+    app.get('/payments', verifyToken, async(req,res)=>{
+      const email = req.query.email;
+      const query = {email: email}
+      const result = await CollectionOfPayments.findOne(query)
+      res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
